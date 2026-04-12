@@ -1,0 +1,156 @@
+@import "./index.css";
+
+/* Full-viewport shell: sidebar + lyrics scroll independently */
+html:has(body.ui-v2) {
+  height: 100%;
+}
+
+body.ui-v2 {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body.ui-v2 h1 {
+  font-size: 1.2rem;
+  margin: 0 0 1rem;
+}
+
+.v2-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(15rem, 22rem) 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.v2-sidebar {
+  box-sizing: border-box;
+  padding: 1rem 1rem 1.5rem;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.v2-beat-label {
+  margin: 0.75rem 0 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+body.ui-v2 #controlsPanel {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.ui-v2 #prompterPanel.v2-prompter-chrome {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+/* Main lyrics column: fixed pane height; scroll happens inside #lyricsViewport */
+.v2-lyrics {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding: 1rem 1.25rem 1.25rem;
+  background: var(--bg);
+}
+
+.v2-lyrics-placeholder {
+  display: none;
+  margin: 0;
+  text-align: center;
+  align-self: center;
+  justify-self: center;
+  max-width: 24rem;
+  line-height: 1.5;
+}
+
+.v2-root:has(#prompterPanel[hidden]) .v2-lyrics-placeholder {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.v2-root:has(#prompterPanel[hidden]) #lyricsViewport {
+  display: none;
+}
+
+body.ui-v2 #lyricsViewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.65rem;
+  font-size: 1.05rem;
+  max-height: 100vh;
+}
+
+/* Larger lyric copy in the main stage (fewer lines, less scrolling) */
+body.ui-v2 .lyric-row .lyric-desc {
+  font-size: clamp(1.25rem, 2.2vw, 2.5rem);
+}
+
+body.ui-v2 .lyric-row .lyric-letra {
+  font-size: clamp(1.1rem, 1.8vw, 1.75rem);
+}
+
+body.ui-v2 .lyric-row .lyric-cifra {
+  font-size: clamp(0.95rem, 1.4vw, 1.35rem);
+}
+
+body.ui-v2 .lyric-row.focused .lyric-letra{
+  font-size: clamp(2rem, 2.4vw, 2.75rem);
+}
+
+body.ui-v2 .lyric-row.focused + .lyric-row .lyric-letra{
+  font-size: clamp(2rem, 2.4vw, 2.75rem);
+}
+/*
+body.ui-v2 .lyric-row.focused .lyric-cifra,
+body.ui-v2 .lyric-row.focused + .lyric-row > .lyric-cifra {
+  font-size: clamp(1rem, 1.6vw, 1.5rem);
+}
+*/
+@media (max-width: 52rem) {
+  .v2-root {
+    grid-template-columns: minmax(13rem, 40vw) 1fr;
+  }
+}
+
+@media (max-width: 36rem) {
+  .v2-root {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+  }
+
+  .v2-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: 45vh;
+    flex-shrink: 0;
+  }
+
+  .v2-lyrics {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
