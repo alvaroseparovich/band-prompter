@@ -1,5 +1,6 @@
 Compassos,Description,Letra,Cifra,,Conf,Conf-Val
-4,Violão,,,,bpm,90
+1,Contagem,Baqueta,,,,
+4,Violão,,,,bpm,80
 1,Entra vózes,"Jesus, em Tua presença",   E/G#          A2  ,,Tempo Por Compasso,4
 1,,Reunimo-nos aqui,   B4         C#m,,,
 1,,Contemplamos Tua face,  E/G#      A2     ,,,
@@ -14,12 +15,12 @@ Compassos,Description,Letra,Cifra,,Conf,Conf-Val
 1,,A luz que outrora apagada,,,,
 1,,Agora brilha,,,,
 1,,E cada dia brilha mais,,,,
-1,,-,,,,
+0,,-,,,,
 1,Refrão,Só pra te adorar,,,,
 1,,E fazer Teu nome grande,,,,
 1,,E Te dar o louvor que é devido,,,,
 1,,Estamos nós aqui,,,,
-1,,-,,,,
+0,,-,,,,
 1,,"Jesus, em Tua presença",,,,
 1,,Reunimo-nos aqui,,,,
 1,,Contemplamos Tua face,,,,
@@ -28,7 +29,7 @@ Compassos,Description,Letra,Cifra,,Conf,Conf-Val
 1,,Trouxe vida a todos nós,,,,
 1,,E nos deu completo acesso,,,,
 1,,Ao coração do Pai,,,,
-,,,,,,
+0,,,,,,
 1,,O véu que separava,,,,
 1,,Já não separa mais,,,,
 1,,A luz que outrora apagada,,,,

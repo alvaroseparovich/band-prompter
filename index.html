@@ -42,9 +42,19 @@
       #musicList li {
         margin-bottom: 0.35rem;
       }
-      #musicList button {
-        width: 100%;
+      .music-list-row {
+        display: flex;
+        gap: 0.35rem;
+        align-items: stretch;
+      }
+      .music-list-row .music-open {
+        flex: 1;
+        min-width: 0;
         text-align: left;
+        padding: 0.5rem 0.65rem;
+      }
+      .music-list-row .music-delete {
+        flex: 0 0 auto;
         padding: 0.5rem 0.65rem;
       }
       .muted {
@@ -67,6 +77,11 @@
         border-radius: 8px;
         padding: 0.25rem;
         scroll-behavior: smooth;
+      }
+      #controlsPanel {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
       }
       .lyric-row {
         padding: 0.5rem 0.35rem;
@@ -99,19 +114,18 @@
   </head>
   <body>
     <h1>Metronome</h1>
-    <fieldset>
+    <fieldset id="controlsPanel">
       <legend>Controls</legend>
       <label>
-        Tempo (BPM)
+        BPM
         <input id="tempo" type="number" min="30" max="300" value="120" />
       </label>
       <label>
-        Beats per measure (accent on beat 1 of each)
+        Compassos
         <input id="accent" type="number" min="1" max="32" value="4" />
       </label>
       <label>
-        Counter (downbeats when no piece is open; <code>music_schema</code> key when
-        a piece is open)
+        Counter
         <input id="counter" type="number" min="0" value="0" />
       </label>
       <button id="playPause" type="button">Play</button>
@@ -129,7 +143,7 @@
       <div class="prompter-toolbar">
         <button id="navUp" type="button" aria-label="Previous section">↑</button>
         <button id="navDown" type="button" aria-label="Next section">↓</button>
-        <button id="closePiece" type="button">Close piece</button>
+        <button id="closePiece" type="button">X</button>
       </div>
       <div id="lyricsViewport">
         <div id="lyricsRows"></div>

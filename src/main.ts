@@ -1,5 +1,5 @@
 import { syncCsvFilesToDatabase } from "./csvSync";
-import { getAllMusics, getMusic, type StoredMusic } from "./db";
+import { deleteMusic, getAllMusics, getMusic, type StoredMusic } from "./db";
 import type { MusicSchema } from "./musicTypes";
 import { createMetronome, type BeatInfo } from "./metronome";
 
@@ -211,13 +211,38 @@ async function refreshMusicList(): Promise<void> {
   musicList.innerHTML = "";
   for (const m of all) {
     const li = document.createElement("li");
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.textContent = m.title;
-    btn.addEventListener("click", () => {
+    const row = document.createElement("div");
+    row.className = "music-list-row";
+
+    const openBtn = document.createElement("button");
+    openBtn.type = "button";
+    openBtn.className = "music-open";
+    openBtn.textContent = m.title;
+    openBtn.addEventListener("click", () => {
       void selectMusic(m.id);
     });
-    li.appendChild(btn);
+
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "music-delete";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", () => {
+      const ok = window.confirm(
+        `Delete "${m.title}"? This removes the item from IndexedDB (not the CSV file).`,
+      );
+      if (!ok) return;
+      void (async () => {
+        await deleteMusic(m.id);
+        if (currentMusic?.id === m.id) {
+          clearMusicSelection();
+        }
+        await refreshMusicList();
+      })();
+    });
+
+    row.appendChild(openBtn);
+    row.appendChild(delBtn);
+    li.appendChild(row);
     musicList.appendChild(li);
   }
 }

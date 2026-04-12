@@ -60,3 +60,14 @@ export async function getMusic(id: string): Promise<StoredMusic | undefined> {
   db.close();
   return out;
 }
+
+export async function deleteMusic(id: string): Promise<void> {
+  const db = await openDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error ?? new Error("deleteMusic transaction failed"));
+    tx.objectStore(STORE).delete(id);
+  });
+  db.close();
+}
