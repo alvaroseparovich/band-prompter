@@ -51,6 +51,50 @@
         color: #666;
         font-size: 0.9rem;
       }
+      #prompterPanel {
+        margin-top: 1rem;
+      }
+      .prompter-toolbar {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+      }
+      #lyricsViewport {
+        max-height: 60vh;
+        overflow: auto;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 0.25rem;
+        scroll-behavior: smooth;
+      }
+      .lyric-row {
+        padding: 0.5rem 0.35rem;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+      }
+      .lyric-row .lyric-desc {
+        font-size: 0.8rem;
+        color: #555;
+      }
+      .lyric-row .lyric-letra {
+        margin-top: 0.15rem;
+      }
+      .lyric-row .lyric-cifra {
+        font-family: ui-monospace, monospace;
+        font-size: 0.85rem;
+        color: #333;
+        margin-top: 0.15rem;
+        white-space: pre-wrap;
+      }
+      .lyric-row.focused {
+        font-size: 1.15rem;
+        font-weight: 600;
+        background: #f0f7ff;
+      }
+      .lyric-row.focused .lyric-cifra {
+        font-size: 0.95rem;
+      }
     </style>
   </head>
   <body>
@@ -66,7 +110,8 @@
         <input id="accent" type="number" min="1" max="32" value="4" />
       </label>
       <label>
-        Downbeat counter (editable; increments each accented beat)
+        Counter (downbeats when no piece is open; <code>music_schema</code> key when
+        a piece is open)
         <input id="counter" type="number" min="0" value="0" />
       </label>
       <button id="playPause" type="button">Play</button>
@@ -77,6 +122,18 @@
       <legend>Musics (IndexedDB)</legend>
       <p id="syncStatus" class="muted">Loading CSVs…</p>
       <ul id="musicList"></ul>
+    </fieldset>
+    <fieldset id="prompterPanel" hidden>
+      <legend>Prompter</legend>
+      <p id="prompterTitle" class="muted"></p>
+      <div class="prompter-toolbar">
+        <button id="navUp" type="button" aria-label="Previous section">↑</button>
+        <button id="navDown" type="button" aria-label="Next section">↓</button>
+        <button id="closePiece" type="button">Close piece</button>
+      </div>
+      <div id="lyricsViewport">
+        <div id="lyricsRows"></div>
+      </div>
     </fieldset>
     <script type="module" src="/src/main.ts"></script>
   </body>
