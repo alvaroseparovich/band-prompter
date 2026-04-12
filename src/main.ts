@@ -1,3 +1,5 @@
+import { syncCsvFilesToDatabase } from "./csvSync";
+import { getAllMusics } from "./db";
 import { createMetronome, type BeatInfo } from "./metronome";
 
 const FLASH_MS = 80;
@@ -7,6 +9,8 @@ const accentInput = document.querySelector<HTMLInputElement>("#accent")!;
 const counterInput = document.querySelector<HTMLInputElement>("#counter")!;
 const playPauseBtn = document.querySelector<HTMLButtonElement>("#playPause")!;
 const beatIndicator = document.querySelector<HTMLDivElement>("#beatIndicator")!;
+const syncStatus = document.querySelector<HTMLParagraphElement>("#syncStatus")!;
+const musicList = document.querySelector<HTMLUListElement>("#musicList")!;
 
 let flashTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -51,6 +55,19 @@ function syncControlsFromMetronome(): void {
   metronome.setAccent(Number(accentInput.value) || 4);
 }
 
+async function refreshMusicList(): Promise<void> {
+  const all = await getAllMusics();
+  musicList.innerHTML = "";
+  for (const m of all) {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = m.title;
+    li.appendChild(btn);
+    musicList.appendChild(li);
+  }
+}
+
 tempoInput.addEventListener("change", () => {
   metronome.setTempo(Number(tempoInput.value) || 120);
 });
@@ -84,5 +101,16 @@ playPauseBtn.addEventListener("click", async () => {
     playPauseBtn.textContent = "Pause";
   }
 });
+
+void (async () => {
+  try {
+    await syncCsvFilesToDatabase();
+    syncStatus.textContent = "CSVs synced to IndexedDB.";
+    await refreshMusicList();
+  } catch (e) {
+    syncStatus.textContent =
+      e instanceof Error ? e.message : "Failed to sync CSVs.";
+  }
+})();
 
 reflectCounterToInput();

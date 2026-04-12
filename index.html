@@ -9,7 +9,7 @@
         font-family: system-ui, sans-serif;
       }
       body {
-        max-width: 28rem;
+        max-width: 36rem;
         margin: 2rem auto;
         padding: 0 1rem;
       }
@@ -34,6 +34,23 @@
       #beatIndicator.beep-on {
         background: #22c55e;
       }
+      #musicList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      #musicList li {
+        margin-bottom: 0.35rem;
+      }
+      #musicList button {
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.65rem;
+      }
+      .muted {
+        color: #666;
+        font-size: 0.9rem;
+      }
     </style>
   </head>
   <body>
@@ -56,6 +73,11 @@
     </fieldset>
     <p>Beat</p>
     <div id="beatIndicator" aria-live="polite"></div>
+    <fieldset>
+      <legend>Musics (IndexedDB)</legend>
+      <p id="syncStatus" class="muted">Loading CSVs…</p>
+      <ul id="musicList"></ul>
+    </fieldset>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
