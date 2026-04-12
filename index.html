@@ -9,7 +9,7 @@
         font-family: system-ui, sans-serif;
       }
       body {
-        max-width: 36rem;
+        max-width: 50rem;
         margin: 2rem auto;
         padding: 0 1rem;
       }
@@ -62,6 +62,7 @@
         font-size: 0.9rem;
       }
       #prompterPanel {
+        font-size: 1.15rem;
         margin-top: 1rem;
       }
       .prompter-toolbar {
@@ -76,7 +77,6 @@
         border: 1px solid #ccc;
         border-radius: 8px;
         padding: 0.25rem;
-        scroll-behavior: smooth;
       }
       #controlsPanel {
         display: flex;
@@ -84,9 +84,10 @@
         flex-wrap: wrap;
       }
       .lyric-row {
-        padding: 0.5rem 0.35rem;
+        padding: 1.5rem 0.35rem 0.5rem;
         border-bottom: 1px solid #eee;
         cursor: pointer;
+        transition: font-size 0.35s ease-out;
       }
       .lyric-row .lyric-desc {
         font-size: 0.8rem;
@@ -101,14 +102,16 @@
         color: #333;
         margin-top: 0.15rem;
         white-space: pre-wrap;
+        transition: font-size 0.35s ease-out;
       }
       .lyric-row.focused {
-        font-size: 1.15rem;
+        font-size: 2rem;
         font-weight: 600;
         background: #f0f7ff;
+        transition: font-size 0.35s ease-out;
       }
       .lyric-row.focused + .lyric-row {
-        font-size: 1.15rem;
+        font-size: 2rem;
         font-weight: 600;
       }
       .lyric-row.focused + .lyric-row > .lyric-cifra {

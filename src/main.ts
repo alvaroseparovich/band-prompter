@@ -17,9 +17,13 @@ const prompterTitle = document.querySelector<HTMLParagraphElement>("#prompterTit
 const navUp = document.querySelector<HTMLButtonElement>("#navUp")!;
 const navDown = document.querySelector<HTMLButtonElement>("#navDown")!;
 const closePiece = document.querySelector<HTMLButtonElement>("#closePiece")!;
+const lyricsViewport = document.querySelector<HTMLDivElement>("#lyricsViewport")!;
 const lyricsRows = document.querySelector<HTMLDivElement>("#lyricsRows")!;
 
+const LYRIC_SCROLL_MS = 900;
+
 let flashTimeout: ReturnType<typeof setTimeout> | null = null;
+let lyricScrollRaf: number | null = null;
 
 let reflectCounterFromModel = false;
 
@@ -91,16 +95,47 @@ function setTransportKey(rawKey: number): void {
   updatePrompterFocus();
 }
 
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+}
+
+function scrollLyricRowIntoViewSlow(row: HTMLElement): void {
+  const vp = lyricsViewport;
+  if (lyricScrollRaf !== null) {
+    cancelAnimationFrame(lyricScrollRaf);
+    lyricScrollRaf = null;
+  }
+  const startTop = vp.scrollTop;
+  const targetTop =
+    vp.scrollTop +
+    (row.getBoundingClientRect().top - vp.getBoundingClientRect().top);
+  const dist = targetTop - startTop;
+  if (Math.abs(dist) < 2) return;
+
+  const t0 = performance.now();
+  function frame(now: number): void {
+    const elapsed = now - t0;
+    const t = Math.min(1, elapsed / LYRIC_SCROLL_MS);
+    vp.scrollTop = startTop + dist * easeInOutQuad(t);
+    if (t < 1) {
+      lyricScrollRaf = requestAnimationFrame(frame);
+    } else {
+      lyricScrollRaf = null;
+    }
+  }
+  lyricScrollRaf = requestAnimationFrame(frame);
+}
+
 function updatePrompterFocus(): void {
   if (!currentMusic || activeKey === null) return;
+  let focusedEl: HTMLElement | null = null;
   document.querySelectorAll<HTMLElement>(".lyric-row").forEach((el) => {
     const k = Number(el.dataset.key);
     const focused = k === activeKey;
     el.classList.toggle("focused", focused);
-    if (focused) {
-      el.scrollIntoView({ block: "start", behavior: "smooth" });
-    }
+    if (focused) focusedEl = el;
   });
+  if (focusedEl) scrollLyricRowIntoViewSlow(focusedEl);
 }
 
 function renderPrompter(): void {
@@ -151,6 +186,10 @@ function handleDownbeatTransport(): void {
 }
 
 function clearMusicSelection(): void {
+  if (lyricScrollRaf !== null) {
+    cancelAnimationFrame(lyricScrollRaf);
+    lyricScrollRaf = null;
+  }
   currentMusic = null;
   activeKey = null;
   barsRemainingInSegment = 0;
