@@ -86,6 +86,14 @@ export function createMetronome(options: MetronomeOptions = {}) {
       accent = Math.max(1, Math.floor(n));
     },
 
+    getAccent(): number {
+      return accent;
+    },
+
+    getTempoBpm(): number {
+      return tempoBpm;
+    },
+
     async play(): Promise<void> {
       if (playing) return;
       const ctx = ensureContext();

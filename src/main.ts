@@ -1,22 +1,35 @@
-import { createMetronome } from "./metronome";
+import { createMetronome, type BeatInfo } from "./metronome";
 
 const FLASH_MS = 80;
 
 const tempoInput = document.querySelector<HTMLInputElement>("#tempo")!;
 const accentInput = document.querySelector<HTMLInputElement>("#accent")!;
+const counterInput = document.querySelector<HTMLInputElement>("#counter")!;
 const playPauseBtn = document.querySelector<HTMLButtonElement>("#playPause")!;
 const beatIndicator = document.querySelector<HTMLDivElement>("#beatIndicator")!;
 
 let flashTimeout: ReturnType<typeof setTimeout> | null = null;
 
+/** Prevents counter `change` feedback when the value is set from the metronome. */
+let reflectCounterFromModel = false;
+
+/** Downbeat count since Play when no piece is loaded (1.1.0). */
+let downbeatCount = 0;
+
 function setBeatVisual(on: boolean): void {
   beatIndicator.classList.toggle("beep-on", on);
+}
+
+function reflectCounterToInput(): void {
+  reflectCounterFromModel = true;
+  counterInput.value = String(downbeatCount);
+  reflectCounterFromModel = false;
 }
 
 const metronome = createMetronome({
   tempoBpm: Number(tempoInput.value) || 120,
   accent: Number(accentInput.value) || 4,
-  onBeat() {
+  onBeat(info: BeatInfo) {
     if (flashTimeout !== null) {
       clearTimeout(flashTimeout);
     }
@@ -25,6 +38,11 @@ const metronome = createMetronome({
       setBeatVisual(false);
       flashTimeout = null;
     }, FLASH_MS);
+
+    if (info.accented) {
+      downbeatCount += 1;
+      reflectCounterToInput();
+    }
   },
 });
 
@@ -41,6 +59,14 @@ accentInput.addEventListener("change", () => {
   metronome.setAccent(Number(accentInput.value) || 4);
 });
 
+counterInput.addEventListener("change", () => {
+  if (reflectCounterFromModel) return;
+  const v = parseInt(counterInput.value, 10);
+  if (!Number.isFinite(v)) return;
+  downbeatCount = Math.max(0, Math.floor(v));
+  reflectCounterToInput();
+});
+
 playPauseBtn.addEventListener("click", async () => {
   if (metronome.playing) {
     metronome.pause();
@@ -52,7 +78,11 @@ playPauseBtn.addEventListener("click", async () => {
     }
   } else {
     syncControlsFromMetronome();
+    downbeatCount = 0;
+    reflectCounterToInput();
     await metronome.play();
     playPauseBtn.textContent = "Pause";
   }
 });
+
+reflectCounterToInput();
