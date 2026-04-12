@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metronome</title>
+    <style>
+      :root {
+        font-family: system-ui, sans-serif;
+      }
+      body {
+        max-width: 28rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      fieldset {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.75rem;
+      }
+      #beatIndicator {
+        height: 4rem;
+        border-radius: 8px;
+        border: 2px solid #333;
+        background: #e8e8e8;
+        transition: background-color 40ms ease-out;
+      }
+      #beatIndicator.beep-on {
+        background: #22c55e;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Metronome</h1>
+    <fieldset>
+      <legend>Controls</legend>
+      <label>
+        Tempo (BPM)
+        <input id="tempo" type="number" min="30" max="300" value="120" />
+      </label>
+      <label>
+        Beats per measure (accent on beat 1 of each)
+        <input id="accent" type="number" min="1" max="32" value="4" />
+      </label>
+      <button id="playPause" type="button">Play</button>
+    </fieldset>
+    <p>Beat</p>
+    <div id="beatIndicator" aria-live="polite"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
