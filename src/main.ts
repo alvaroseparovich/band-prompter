@@ -324,7 +324,16 @@ closePiece.addEventListener("click", () => {
   clearMusicSelection();
 });
 
-playPauseBtn.addEventListener("click", async () => {
+function spaceShouldControlMetronome(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return true;
+  if (target.isContentEditable) return false;
+  const tag = target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return false;
+  if (target.closest("input, textarea, select")) return false;
+  return true;
+}
+
+async function togglePlayPause(): Promise<void> {
   if (metronome.playing) {
     metronome.pause();
     playPauseBtn.textContent = "Play";
@@ -345,6 +354,17 @@ playPauseBtn.addEventListener("click", async () => {
     await metronome.play();
     playPauseBtn.textContent = "Pause";
   }
+}
+
+playPauseBtn.addEventListener("click", () => {
+  void togglePlayPause();
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.code !== "Space") return;
+  if (!spaceShouldControlMetronome(e.target)) return;
+  e.preventDefault();
+  void togglePlayPause();
 });
 
 void (async () => {

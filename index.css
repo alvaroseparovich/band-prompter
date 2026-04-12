@@ -1,0 +1,181 @@
+
+:root {
+  font-family: system-ui, sans-serif;
+  color-scheme: dark;
+
+  --bg: #0c0f14;
+  --surface: #141922;
+  --surface-raised: #1c2330;
+  --border: #2d3748;
+  --border-strong: #3d4a5f;
+  --text: #e8edf5;
+  --text-muted: #8b9cb3;
+  --accent: #38bdf8;
+  --accent-muted: #0e7490;
+  --focus-row: #1a2d4a;
+  --beat-off: #1a2130;
+  --beat-on: #16a34a;
+  --danger: #f87171;
+  --danger-bg: #3f1d1d;
+}
+body {
+  max-width: 50rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  background: var(--bg);
+  color: var(--text);
+}
+h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: var(--surface);
+}
+legend {
+  color: var(--text-muted);
+  padding: 0 0.35rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+input[type="number"] {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.4rem 0.5rem;
+}
+input[type="number"]:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--border-strong);
+}
+button {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+}
+button:hover {
+  background: #252d3d;
+  border-color: var(--border-strong);
+}
+button:active {
+  transform: translateY(1px);
+}
+#beatIndicator {
+  height: 4rem;
+  border-radius: 8px;
+  border: 2px solid var(--border-strong);
+  background: var(--beat-off);
+  transition: background-color 40ms ease-out;
+}
+#beatIndicator.beep-on {
+  background: var(--beat-on);
+  border-color: #22c55e;
+}
+#musicList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#musicList li {
+  margin-bottom: 0.35rem;
+}
+.music-list-row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: stretch;
+}
+.music-list-row .music-open {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+}
+.music-list-row .music-delete {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.65rem;
+  color: var(--danger);
+  border-color: #5c2a2a;
+  background: var(--danger-bg);
+}
+.music-list-row .music-delete:hover {
+  background: #5c2020;
+  border-color: var(--danger);
+}
+.muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+#prompterPanel {
+  font-size: 1.15rem;
+  margin-top: 1rem;
+}
+.prompter-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+#lyricsViewport {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem;
+  background: var(--bg);
+}
+#controlsPanel {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lyric-row {
+  padding: 1.5rem 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: font-size 0.35s ease-out;
+}
+.lyric-row .lyric-desc {
+  font-size: 3rem;
+  color: var(--text-muted);
+}
+.lyric-row .lyric-letra {
+  margin-top: 0.15rem;
+}
+.lyric-row .lyric-cifra {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin-top: 0.15rem;
+  white-space: pre-wrap;
+  transition: font-size 0.35s ease-out;
+}
+.lyric-row.focused {
+  font-size: 2rem;
+  font-weight: 600;
+  background: var(--focus-row);
+  transition: font-size 0.35s ease-out;
+}
+.lyric-row.focused + .lyric-row {
+  font-size: 2rem;
+  font-weight: 600;
+}
+.lyric-row.focused + .lyric-row > .lyric-cifra {
+  font-size: 1rem;
+}
+.lyric-row.focused .lyric-cifra {
+  font-size: 1rem;
+}
