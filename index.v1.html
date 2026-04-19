@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metronome</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <h1>Metronome</h1>
+    <fieldset id="controlsPanel">
+      <legend>Controls</legend>
+      <label>
+        BPM
+        <input id="tempo" type="number" min="30" max="300" value="120" />
+      </label>
+      <label>
+        Compassos
+        <input id="accent" type="number" min="1" max="32" value="4" />
+      </label>
+      <label>
+        Counter
+        <input id="counter" type="number" min="0" value="0" />
+      </label>
+      <button id="playPause" type="button">Play</button>
+    </fieldset>
+    <p>Beat</p>
+    <div id="beatIndicator" aria-live="polite"></div>
+    <fieldset>
+      <legend>Musics (IndexedDB)</legend>
+      <p id="syncStatus" class="muted">Loading CSVs…</p>
+      <ul id="musicList"></ul>
+    </fieldset>
+    <fieldset id="prompterPanel" hidden>
+      <legend>Prompter</legend>
+      <p id="prompterTitle" class="muted"></p>
+      <div class="prompter-toolbar">
+        <button id="navUp" type="button" aria-label="Previous section">↑</button>
+        <button id="navDown" type="button" aria-label="Next section">↓</button>
+        <button id="closePiece" type="button">X</button>
+      </div>
+      <div id="lyricsViewport">
+        <div id="lyricsRows"></div>
+      </div>
+    </fieldset>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
