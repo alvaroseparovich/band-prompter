@@ -62,6 +62,10 @@ function headerIndex(header: string[], name: string): number {
 
 export function csvTextToMusicDocument(csvText: string): MusicDocument {
   const rows = parseCsv(csvText.trimEnd());
+  return rowsToMusicDocument(rows);
+}
+
+export function rowsToMusicDocument(rows: string[][]): MusicDocument {
   if (rows.length === 0) {
     return { conf: {}, music_schema: {} };
   }

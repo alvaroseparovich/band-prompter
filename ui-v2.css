@@ -51,6 +51,25 @@ body.ui-v2 #controlsPanel {
   align-items: stretch;
 }
 
+body.ui-v2 #sheetsImportPanel input[type="text"] {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.4rem 0.5rem;
+}
+
+body.ui-v2 #sheetsImportPanel input[type="text"]:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--border-strong);
+}
+
+body.ui-v2 #sheetImportStatus {
+  margin: 0.75rem 0 0;
+  white-space: pre-line;
+}
+
 body.ui-v2 #prompterPanel.v2-prompter-chrome {
   margin-top: 1rem;
   font-size: 0.95rem;

@@ -1,5 +1,7 @@
 import { syncCsvFilesToDatabase } from "./csvSync";
-import { deleteMusic, getAllMusics, getMusic, type StoredMusic } from "./db";
+import { rowsToMusicDocument } from "./csvMusic";
+import { deleteMusic, getAllMusics, getMusic, putMusic, type StoredMusic } from "./db";
+import { extractSpreadsheetId, getAllSpreadsheetTabValues } from "./googleSheets";
 import type { MusicSchema } from "./musicTypes";
 import { createMetronome, type BeatInfo } from "./metronome";
 
@@ -19,6 +21,10 @@ const navDown = document.querySelector<HTMLButtonElement>("#navDown")!;
 const closePiece = document.querySelector<HTMLButtonElement>("#closePiece")!;
 const lyricsViewport = document.querySelector<HTMLDivElement>("#lyricsViewport")!;
 const lyricsRows = document.querySelector<HTMLDivElement>("#lyricsRows")!;
+const sheetUrlInput = document.querySelector<HTMLInputElement>("#sheetUrl");
+const sheetRangeInput = document.querySelector<HTMLInputElement>("#sheetRange");
+const sheetImportBtn = document.querySelector<HTMLButtonElement>("#sheetImportBtn");
+const sheetImportStatus = document.querySelector<HTMLParagraphElement>("#sheetImportStatus");
 
 const LYRIC_SCROLL_MS = 900;
 
@@ -33,6 +39,15 @@ let downbeatCount = 0;
 let currentMusic: StoredMusic | null = null;
 let activeKey: number | null = null;
 let barsRemainingInSegment = 0;
+
+function setSheetImportStatus(msg: string): void {
+  if (!sheetImportStatus) return;
+  sheetImportStatus.textContent = msg;
+}
+
+function toSheetRecordId(spreadsheetId: string, sheetId: number): string {
+  return `gsheet:${spreadsheetId}:${sheetId}`;
+}
 
 function setBeatVisual(on: boolean): void {
   beatIndicator.classList.toggle("beep-on", on);
@@ -286,6 +301,68 @@ async function refreshMusicList(): Promise<void> {
   }
 }
 
+async function importFromGoogleSheets(): Promise<void> {
+  if (!sheetUrlInput || !sheetImportBtn) return;
+
+  const rawInput = sheetUrlInput.value.trim();
+  const spreadsheetId = extractSpreadsheetId(rawInput);
+  if (!spreadsheetId) {
+    setSheetImportStatus("Invalid Google Sheets URL or sheet ID.");
+    return;
+  }
+
+  const range = sheetRangeInput?.value.trim() || "A:G";
+
+  sheetImportBtn.disabled = true;
+  setSheetImportStatus("Requesting Google authorization and loading tabs...");
+
+  try {
+    const tabValues = await getAllSpreadsheetTabValues(spreadsheetId, range);
+    if (tabValues.length === 0) {
+      setSheetImportStatus("No tabs were found in this spreadsheet.");
+      return;
+    }
+
+    let importedCount = 0;
+    const failures: string[] = [];
+
+    for (const tab of tabValues) {
+      try {
+        const doc = rowsToMusicDocument(tab.values);
+        const record: StoredMusic = {
+          id: toSheetRecordId(spreadsheetId, tab.sheetId),
+          title: tab.title,
+          conf: doc.conf,
+          music_schema: doc.music_schema,
+          updatedAt: Date.now(),
+        };
+        await putMusic(record);
+        importedCount += 1;
+      } catch (e) {
+        const detail = e instanceof Error ? e.message : "Unknown import error";
+        failures.push(`${tab.title}: ${detail}`);
+      }
+    }
+
+    await refreshMusicList();
+    if (failures.length === 0) {
+      setSheetImportStatus(
+        `Imported ${importedCount} tab(s) from spreadsheet ${spreadsheetId}.`,
+      );
+      return;
+    }
+    setSheetImportStatus(
+      `Imported ${importedCount} tab(s), ${failures.length} failed.\n${failures.join("\n")}`,
+    );
+  } catch (e) {
+    setSheetImportStatus(
+      e instanceof Error ? `Import failed: ${e.message}` : "Import failed.",
+    );
+  } finally {
+    sheetImportBtn.disabled = false;
+  }
+}
+
 tempoInput.addEventListener("change", () => {
   metronome.setTempo(Number(tempoInput.value) || 120);
 });
@@ -358,6 +435,10 @@ async function togglePlayPause(): Promise<void> {
 
 playPauseBtn.addEventListener("click", () => {
   void togglePlayPause();
+});
+
+sheetImportBtn?.addEventListener("click", () => {
+  void importFromGoogleSheets();
 });
 
 document.addEventListener("keydown", (e) => {

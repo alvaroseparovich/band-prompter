@@ -33,6 +33,25 @@
           <p id="syncStatus" class="muted">Loading CSVs…</p>
           <ul id="musicList"></ul>
         </fieldset>
+        <fieldset id="sheetsImportPanel">
+          <legend>Import from Google Sheets</legend>
+          <label>
+            Sheet URL or ID
+            <input
+              id="sheetUrl"
+              type="text"
+              placeholder="https://docs.google.com/spreadsheets/d/.../edit"
+            />
+          </label>
+          <label>
+            Range
+            <input id="sheetRange" type="text" value="A:G" />
+          </label>
+          <button id="sheetImportBtn" type="button">Import all tabs</button>
+          <p id="sheetImportStatus" class="muted">
+            Paste a Google Sheets URL and import all tabs.
+          </p>
+        </fieldset>
         <fieldset id="prompterPanel" class="v2-prompter-chrome" hidden>
           <legend>Prompter</legend>
           <p id="prompterTitle" class="muted"></p>
