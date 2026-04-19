@@ -47,7 +47,7 @@ body.ui-v2 h1 {
 }
 
 body.ui-v2 #controlsPanel {
-  flex-direction: column;
+  flex-direction: row;
   align-items: stretch;
 }
 
