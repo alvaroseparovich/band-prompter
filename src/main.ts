@@ -153,17 +153,17 @@ function renderPrompter(): void {
       desc.textContent = row.Description;
       div.appendChild(desc);
     }
-    if (row.Letra.trim() !== "") {
-      const letra = document.createElement("div");
-      letra.className = "lyric-letra";
-      letra.textContent = row.Letra;
-      div.appendChild(letra);
-    }
     if (row.Cifra.trim() !== "") {
       const cifra = document.createElement("div");
       cifra.className = "lyric-cifra";
       cifra.textContent = row.Cifra;
       div.appendChild(cifra);
+    }
+    if (row.Letra.trim() !== "") {
+      const letra = document.createElement("div");
+      letra.className = "lyric-letra";
+      letra.textContent = row.Letra;
+      div.appendChild(letra);
     }
     div.addEventListener("click", () => setTransportKey(k));
     lyricsRows.appendChild(div);
