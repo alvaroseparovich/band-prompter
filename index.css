@@ -143,6 +143,8 @@ button:active {
   flex-wrap: wrap;
 }
 .lyric-row {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
@@ -151,7 +153,28 @@ button:active {
   cursor: pointer;
   transition: font-size 0.35s ease-out;
 }
+.lyric-row .lyric-progress {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+  z-index: 0;
+}
+.lyric-row.focused .lyric-progress {
+  opacity: 0.42;
+}
+.lyric-row .lyric-progress-cell {
+  background: transparent;
+  transition: background-color 0.11s linear;
+}
+.lyric-row.focused .lyric-progress-cell.filled {
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+}
 .lyric-row .lyric-compassos {
+  position: relative;
   flex: 0 0 2.2rem;
   text-align: right;
   font-family: ui-monospace, monospace;
@@ -160,10 +183,13 @@ button:active {
   opacity: 0.9;
   line-height: 1.45;
   padding-top: 0.2rem;
+  z-index: 1;
 }
 .lyric-row .lyric-main {
+  position: relative;
   flex: 1;
   min-width: 0;
+  z-index: 1;
 }
 .lyric-row .lyric-desc {
   font-size: 3rem;

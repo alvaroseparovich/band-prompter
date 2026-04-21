@@ -38,7 +38,7 @@ let downbeatCount = 0;
 
 let currentMusic: StoredMusic | null = null;
 let activeKey: number | null = null;
-let barsRemainingInSegment = 0;
+let beatsElapsedInSegment = 0;
 
 function setSheetImportStatus(msg: string): void {
   if (!sheetImportStatus) return;
@@ -70,6 +70,29 @@ function snapToNearestKey(value: number, keys: number[]): number {
 function barsForRow(row: StoredMusic["music_schema"][number]): number {
   const comp = parseInt(row.Compassos, 10);
   return Number.isFinite(comp) && comp > 0 ? comp : 1;
+}
+
+function beatsPerBar(): number {
+  const n = parseInt(accentInput.value, 10);
+  return Number.isFinite(n) && n > 0 ? n : metronome.getAccent();
+}
+
+function totalBeatsForRow(row: StoredMusic["music_schema"][number]): number {
+  return Math.max(1, barsForRow(row) * beatsPerBar());
+}
+
+function updateFocusedRowBeatProgress(): void {
+  if (!currentMusic || activeKey === null) return;
+  const row = currentMusic.music_schema[activeKey];
+  if (!row) return;
+  const total = totalBeatsForRow(row);
+  const filled = Math.max(0, Math.min(beatsElapsedInSegment, total));
+  const focusedRow = lyricsRows.querySelector<HTMLElement>(`.lyric-row[data-key="${activeKey}"]`);
+  if (!focusedRow) return;
+  const cells = focusedRow.querySelectorAll<HTMLElement>(".lyric-progress-cell");
+  cells.forEach((cell, idx) => {
+    cell.classList.toggle("filled", idx < filled);
+  });
 }
 
 function reflectCounterToInput(): void {
@@ -105,7 +128,7 @@ function setTransportKey(rawKey: number): void {
   activeKey = snapToNearestKey(rawKey, keys);
   const row = currentMusic.music_schema[activeKey];
   if (!row) return;
-  barsRemainingInSegment = barsForRow(row);
+  beatsElapsedInSegment = 0;
   reflectCounterToInput();
   updatePrompterFocus();
 }
@@ -150,6 +173,7 @@ function updatePrompterFocus(): void {
     el.classList.toggle("focused", focused);
     if (focused) focusedEl = el;
   });
+  updateFocusedRowBeatProgress();
   if (focusedEl) scrollLyricRowIntoViewSlow(focusedEl);
 }
 
@@ -162,6 +186,18 @@ function renderPrompter(): void {
     const div = document.createElement("div");
     div.className = "lyric-row";
     div.dataset.key = String(k);
+
+    const progress = document.createElement("div");
+    progress.className = "lyric-progress";
+    const totalBeats = totalBeatsForRow(row);
+    progress.style.gridTemplateColumns = `repeat(${totalBeats}, minmax(0, 1fr))`;
+    for (let i = 0; i < totalBeats; i += 1) {
+      const cell = document.createElement("div");
+      cell.className = "lyric-progress-cell";
+      progress.appendChild(cell);
+    }
+    div.appendChild(progress);
+
     const compassos = document.createElement("div");
     compassos.className = "lyric-compassos";
     compassos.textContent = row.Compassos.trim() || "1";
@@ -194,17 +230,19 @@ function renderPrompter(): void {
   updatePrompterFocus();
 }
 
-function handleDownbeatTransport(): void {
+function handleBeatTransport(): void {
   if (!currentMusic || activeKey === null) return;
-  barsRemainingInSegment -= 1;
-  if (barsRemainingInSegment > 0) return;
+  const row = currentMusic.music_schema[activeKey];
+  if (!row) return;
+  if (beatsElapsedInSegment < totalBeatsForRow(row)) return;
 
   const keys = sortedSchemaKeys(currentMusic.music_schema);
   const idx = keys.indexOf(activeKey);
   if (idx >= 0 && idx < keys.length - 1) {
     setTransportKey(keys[idx + 1]!);
   } else {
-    barsRemainingInSegment = barsForRow(currentMusic.music_schema[activeKey]!);
+    beatsElapsedInSegment = 0;
+    updateFocusedRowBeatProgress();
   }
 }
 
@@ -215,7 +253,7 @@ function clearMusicSelection(): void {
   }
   currentMusic = null;
   activeKey = null;
-  barsRemainingInSegment = 0;
+  beatsElapsedInSegment = 0;
   prompterPanel.hidden = true;
   prompterTitle.textContent = "";
   lyricsRows.innerHTML = "";
@@ -252,11 +290,12 @@ const metronome = createMetronome({
       flashTimeout = null;
     }, FLASH_MS);
 
-    if (!info.accented) return;
-
     if (currentMusic !== null && activeKey !== null) {
-      handleDownbeatTransport();
+      beatsElapsedInSegment += 1;
+      updateFocusedRowBeatProgress();
+      handleBeatTransport();
     } else {
+      if (!info.accented) return;
       downbeatCount += 1;
       reflectCounterToInput();
     }
@@ -431,9 +470,9 @@ async function togglePlayPause(): Promise<void> {
     syncControlsFromMetronome();
     if (currentMusic === null) {
       downbeatCount = 0;
-    } else if (activeKey !== null) {
-      const row = currentMusic.music_schema[activeKey];
-      if (row) barsRemainingInSegment = barsForRow(row);
+    } else {
+      beatsElapsedInSegment = 0;
+      updateFocusedRowBeatProgress();
     }
     reflectCounterToInput();
     await metronome.play();
