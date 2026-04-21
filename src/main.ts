@@ -27,6 +27,7 @@ const sheetImportBtn = document.querySelector<HTMLButtonElement>("#sheetImportBt
 const sheetImportStatus = document.querySelector<HTMLParagraphElement>("#sheetImportStatus");
 
 const LYRIC_SCROLL_MS = 900;
+const LYRIC_FOCUS_TOP_GUTTER_PX = 96;
 
 let flashTimeout: ReturnType<typeof setTimeout> | null = null;
 let lyricScrollRaf: number | null = null;
@@ -144,10 +145,14 @@ function scrollLyricRowIntoViewSlow(row: HTMLElement): void {
     lyricScrollRaf = null;
   }
   const startTop = vp.scrollTop;
+  const topGutter = Math.max(LYRIC_FOCUS_TOP_GUTTER_PX, Math.round(vp.clientHeight * 0.12));
   const targetTop =
     vp.scrollTop +
-    (row.getBoundingClientRect().top - vp.getBoundingClientRect().top);
-  const dist = targetTop - startTop;
+    (row.getBoundingClientRect().top - vp.getBoundingClientRect().top) -
+    topGutter;
+  const maxTop = Math.max(0, vp.scrollHeight - vp.clientHeight);
+  const clampedTargetTop = Math.max(0, Math.min(targetTop, maxTop));
+  const dist = clampedTargetTop - startTop;
   if (Math.abs(dist) < 2) return;
 
   const t0 = performance.now();
