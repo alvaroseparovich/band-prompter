@@ -629,7 +629,7 @@ showLoremBtn?.addEventListener("click", () => {
   window.alert(
     `Open a google sheets, click in: 
     [file -> import -> (past the csv url)]. 
-    https://localhost/csv.csv
+    https://raw.githubusercontent.com/alvaroseparovich/band-prompter/refs/heads/main/csvs/example.csv
     
     use this example to create your own google sheets. You can create any sheets you want in the same file.
     Doing this you can store it on your own google sheets.

@@ -18,10 +18,7 @@ export default defineConfig(({ mode }) => {
   const rollupInput: Record<string, string> = {
     index: resolve(root, "index.html"),
   };
-  const uiV2Path = resolve(root, "ui-v2.html");
-  if (existsSync(uiV2Path)) {
-    rollupInput.uiV2 = uiV2Path;
-  }
+
   return {
     base,
     define: {
