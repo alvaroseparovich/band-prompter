@@ -38,6 +38,8 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # Repository secret: Settings → Secrets and variables → Actions
+          G_CLOUD_CLIENT_ID: ${{ vars.G_CLOUD_CLIENT_ID }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
