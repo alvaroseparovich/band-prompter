@@ -207,3 +207,89 @@ body.ui-v2 .lyric-row:has(+ .lyric-row.focused) .lyric-cifra {
     overflow: hidden;
   }
 }
+
+/* Help dialog (Google Sheets instructions): selectable text, links, copy URL */
+.v2-help-dialog {
+  max-width: calc(100vw - 2rem);
+  width: min(34rem, 100%);
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.v2-help-dialog::backdrop {
+  background: rgba(6, 10, 18, 0.72);
+}
+
+.v2-help-dialog-panel {
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.v2-help-dialog-panel h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.v2-help-steps {
+  margin: 0 0 1rem;
+  padding-left: 1.35rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.v2-help-steps li {
+  margin-bottom: 0.5rem;
+}
+
+.v2-help-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.v2-help-copy-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  margin-bottom: 0.65rem;
+}
+
+.v2-help-url-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  font-family: ui-monospace, monospace;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.45rem 0.55rem;
+}
+
+.v2-help-url-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.v2-help-link-line {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
+.v2-help-link-line a {
+  color: var(--accent);
+}
+
+.v2-help-link-line a:hover {
+  text-decoration: underline;
+}
+
+.v2-help-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

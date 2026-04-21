@@ -19,6 +19,10 @@ const sidebarEl = document.querySelector<HTMLElement>(".v2-sidebar");
 const emptyLibraryActions = document.querySelector<HTMLDivElement>("#emptyLibraryActions");
 const loadPresetBtn = document.querySelector<HTMLButtonElement>("#loadPresetBtn");
 const showLoremBtn = document.querySelector<HTMLButtonElement>("#showLoremBtn");
+const sheetsHelpDialog = document.querySelector<HTMLDialogElement>("#sheetsHelpDialog");
+const sheetsHelpCloseBtn = document.querySelector<HTMLButtonElement>("#sheetsHelpCloseBtn");
+const sheetsHelpCopyBtn = document.querySelector<HTMLButtonElement>("#sheetsHelpCopyBtn");
+const sheetsHelpCsvUrlInput = document.querySelector<HTMLInputElement>("#sheetsHelpCsvUrl");
 const musicList = document.querySelector<HTMLUListElement>("#musicList")!;
 const prompterPanel = document.querySelector<HTMLFieldSetElement>("#prompterPanel")!;
 const prompterTitle = document.querySelector<HTMLParagraphElement>("#prompterTitle")!;
@@ -626,16 +630,35 @@ loadPresetBtn?.addEventListener("click", () => {
 });
 
 showLoremBtn?.addEventListener("click", () => {
-  window.alert(
-    `Open a google sheets, click in: 
-    [file -> import -> (past the csv url)]. 
-    https://raw.githubusercontent.com/alvaroseparovich/band-prompter/refs/heads/main/csvs/example.csv
-    
-    use this example to create your own google sheets. You can create any sheets you want in the same file.
-    Doing this you can store it on your own google sheets.
-    To load it again, turn it public and copy the url and past here in the import session.
-    `,
-  );
+  sheetsHelpDialog?.showModal();
+});
+
+sheetsHelpCloseBtn?.addEventListener("click", () => {
+  sheetsHelpDialog?.close();
+});
+
+sheetsHelpDialog?.addEventListener("click", (e) => {
+  if (e.target === sheetsHelpDialog) {
+    sheetsHelpDialog.close();
+  }
+});
+
+sheetsHelpCopyBtn?.addEventListener("click", () => {
+  void (async () => {
+    const url = sheetsHelpCsvUrlInput?.value ?? "";
+    if (!url || !sheetsHelpCopyBtn) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      const prev = sheetsHelpCopyBtn.textContent;
+      sheetsHelpCopyBtn.textContent = "Copied!";
+      window.setTimeout(() => {
+        sheetsHelpCopyBtn.textContent = prev ?? "Copy URL";
+      }, 1600);
+    } catch {
+      sheetsHelpCsvUrlInput?.select();
+      sheetsHelpCsvUrlInput?.focus();
+    }
+  })();
 });
 
 sidebarToggleBtn?.addEventListener("click", (e) => {

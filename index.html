@@ -80,6 +80,52 @@
         </div>
       </main>
     </div>
+    <dialog id="sheetsHelpDialog" class="v2-help-dialog" aria-labelledby="sheetsHelpTitle">
+      <div class="v2-help-dialog-panel">
+        <h1 id="sheetsHelpTitle">How to use Google Sheets to store your data</h1>
+        <ol class="v2-help-steps">
+          <li>Open Google Sheets.</li>
+          <li>Use <strong>File → Import</strong>, then paste the example CSV URL below (or open the link).</li>
+        </ol>
+          <p>You can add more sheets in the same file and keep your data there.</p>
+          <div>
+          <div class="v2-help-copy-row">
+            <input
+              id="sheetsHelpCsvUrl"
+              type="text"
+              readonly
+              class="v2-help-url-input"
+              value="https://raw.githubusercontent.com/alvaroseparovich/band-prompter/refs/heads/main/csvs/example.csv"
+              aria-label="Example CSV URL"
+            />
+            <button type="button" id="sheetsHelpCopyBtn">Copy URL</button>
+          </div>
+          <p class="v2-help-label">Example CSV (raw URL)</p>
+        
+        <p class="muted v2-help-link-line">
+          <a
+            href="https://raw.githubusercontent.com/alvaroseparovich/band-prompter/refs/heads/main/csvs/example.csv"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Open example CSV in a new tab</a
+          >
+        </p>
+        </div>
+          <br>
+          
+          <h1> How to import your data here</h1>
+          
+          <p>
+          <br>set the spreadsheet to: <br>
+            <strong>anyone with the link can view</strong><br><br>
+            then paste its URL in the Import Session <br>
+           </p>
+        
+        <div class="v2-help-actions">
+          <button type="button" id="sheetsHelpCloseBtn" autofocus>Close</button>
+        </div>
+      </div>
+    </dialog>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
