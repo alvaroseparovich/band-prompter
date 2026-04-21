@@ -35,6 +35,10 @@
         <fieldset>
           <legend>Musics (IndexedDB)</legend>
           <p id="syncStatus" class="muted">Loading CSVs…</p>
+          <div id="emptyLibraryActions" class="empty-library-actions" hidden>
+            <button id="loadPresetBtn" type="button">Load preset data</button>
+            <button id="showLoremBtn" type="button">Show lorem ipsum</button>
+          </div>
           <ul id="musicList"></ul>
         </fieldset>
         <fieldset id="sheetsImportPanel">
@@ -47,7 +51,7 @@
               placeholder="https://docs.google.com/spreadsheets/d/.../edit"
             />
           </label>
-          <label>
+          <label style="display: none;">
             Range
             <input id="sheetRange" type="text" value="A:G" />
           </label>

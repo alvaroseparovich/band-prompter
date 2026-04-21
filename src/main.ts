@@ -14,6 +14,9 @@ const ttsEnabledInput = document.querySelector<HTMLInputElement>("#ttsEnabled");
 const playPauseBtn = document.querySelector<HTMLButtonElement>("#playPause")!;
 const beatIndicator = document.querySelector<HTMLDivElement>("#beatIndicator")!;
 const syncStatus = document.querySelector<HTMLParagraphElement>("#syncStatus")!;
+const emptyLibraryActions = document.querySelector<HTMLDivElement>("#emptyLibraryActions");
+const loadPresetBtn = document.querySelector<HTMLButtonElement>("#loadPresetBtn");
+const showLoremBtn = document.querySelector<HTMLButtonElement>("#showLoremBtn");
 const musicList = document.querySelector<HTMLUListElement>("#musicList")!;
 const prompterPanel = document.querySelector<HTMLFieldSetElement>("#prompterPanel")!;
 const prompterTitle = document.querySelector<HTMLParagraphElement>("#prompterTitle")!;
@@ -431,6 +434,11 @@ async function refreshMusicList(): Promise<void> {
     li.appendChild(row);
     musicList.appendChild(li);
   }
+  const hasMusicRows = musicList.querySelector(".music-list-row") !== null;
+  if (emptyLibraryActions) emptyLibraryActions.hidden = hasMusicRows;
+  syncStatus.textContent = hasMusicRows
+    ? `${all.length} music(s) loaded.`
+    : "No music loaded yet. Use preset data or import from Google Sheets.";
 }
 
 async function importFromGoogleSheets(): Promise<void> {
@@ -574,6 +582,29 @@ sheetImportBtn?.addEventListener("click", () => {
   void importFromGoogleSheets();
 });
 
+loadPresetBtn?.addEventListener("click", () => {
+  void (async () => {
+    loadPresetBtn.disabled = true;
+    syncStatus.textContent = "Loading preset CSV data...";
+    try {
+      await syncCsvFilesToDatabase();
+      await refreshMusicList();
+      syncStatus.textContent = "Preset CSV data loaded.";
+    } catch (e) {
+      syncStatus.textContent =
+        e instanceof Error ? `Failed to load preset data: ${e.message}` : "Failed to load preset data.";
+    } finally {
+      loadPresetBtn.disabled = false;
+    }
+  })();
+});
+
+showLoremBtn?.addEventListener("click", () => {
+  window.alert(
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  );
+});
+
 document.addEventListener("keydown", (e) => {
   if (e.code !== "Space") return;
   if (!spaceShouldControlMetronome(e.target)) return;
@@ -583,12 +614,10 @@ document.addEventListener("keydown", (e) => {
 
 void (async () => {
   try {
-    await syncCsvFilesToDatabase();
-    syncStatus.textContent = "CSVs synced to IndexedDB.";
     await refreshMusicList();
   } catch (e) {
     syncStatus.textContent =
-      e instanceof Error ? e.message : "Failed to sync CSVs.";
+      e instanceof Error ? e.message : "Failed to load musics.";
   }
 })();
 
