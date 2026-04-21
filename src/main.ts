@@ -162,24 +162,32 @@ function renderPrompter(): void {
     const div = document.createElement("div");
     div.className = "lyric-row";
     div.dataset.key = String(k);
+    const compassos = document.createElement("div");
+    compassos.className = "lyric-compassos";
+    compassos.textContent = row.Compassos.trim() || "1";
+    div.appendChild(compassos);
+
+    const content = document.createElement("div");
+    content.className = "lyric-main";
     if (row.Description.trim() !== "") {
       const desc = document.createElement("div");
       desc.className = "lyric-desc";
       desc.textContent = row.Description;
-      div.appendChild(desc);
+      content.appendChild(desc);
     }
     if (row.Cifra.trim() !== "") {
       const cifra = document.createElement("div");
       cifra.className = "lyric-cifra";
       cifra.textContent = row.Cifra;
-      div.appendChild(cifra);
+      content.appendChild(cifra);
     }
     if (row.Letra.trim() !== "") {
       const letra = document.createElement("div");
       letra.className = "lyric-letra";
       letra.textContent = row.Letra;
-      div.appendChild(letra);
+      content.appendChild(letra);
     }
+    div.appendChild(content);
     div.addEventListener("click", () => setTransportKey(k));
     lyricsRows.appendChild(div);
   }

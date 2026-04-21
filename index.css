@@ -143,10 +143,27 @@ button:active {
   flex-wrap: wrap;
 }
 .lyric-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
   padding: 1.5rem 0.35rem 0.5rem;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: font-size 0.35s ease-out;
+}
+.lyric-row .lyric-compassos {
+  flex: 0 0 2.2rem;
+  text-align: right;
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+  color: var(--text-muted);
+  opacity: 0.9;
+  line-height: 1.45;
+  padding-top: 0.2rem;
+}
+.lyric-row .lyric-main {
+  flex: 1;
+  min-width: 0;
 }
 .lyric-row .lyric-desc {
   font-size: 3rem;
