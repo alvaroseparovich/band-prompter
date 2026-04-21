@@ -59,6 +59,15 @@ input[type="number"]:focus {
   outline-offset: 1px;
   border-color: var(--border-strong);
 }
+.tts-toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.45rem;
+}
+.tts-toggle input[type="checkbox"] {
+  margin: 0;
+}
 button {
   background: var(--surface-raised);
   border: 1px solid var(--border);

@@ -10,6 +10,7 @@ const FLASH_MS = 80;
 const tempoInput = document.querySelector<HTMLInputElement>("#tempo")!;
 const accentInput = document.querySelector<HTMLInputElement>("#accent")!;
 const counterInput = document.querySelector<HTMLInputElement>("#counter")!;
+const ttsEnabledInput = document.querySelector<HTMLInputElement>("#ttsEnabled");
 const playPauseBtn = document.querySelector<HTMLButtonElement>("#playPause")!;
 const beatIndicator = document.querySelector<HTMLDivElement>("#beatIndicator")!;
 const syncStatus = document.querySelector<HTMLParagraphElement>("#syncStatus")!;
@@ -82,6 +83,22 @@ function totalBeatsForRow(row: StoredMusic["music_schema"][number]): number {
   return Math.max(1, barsForRow(row) * beatsPerBar());
 }
 
+function speakRowDescriptionOnStart(): void {
+  if (!("speechSynthesis" in window)) return;
+  if (ttsEnabledInput && !ttsEnabledInput.checked) return;
+  if (!currentMusic || activeKey === null) return;
+  const row = currentMusic.music_schema[activeKey];
+  const text = row?.Description.trim() ?? "";
+  if (text === "") return;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "pt-BR";
+  const voices = window.speechSynthesis.getVoices();
+  const preferredVoice = voices.find((v) => v.lang.toLowerCase().startsWith("pt-br"));
+  if (preferredVoice) utterance.voice = preferredVoice;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
 function updateFocusedRowBeatProgress(): void {
   if (!currentMusic || activeKey === null) return;
   const row = currentMusic.music_schema[activeKey];
@@ -130,6 +147,7 @@ function setTransportKey(rawKey: number): void {
   const row = currentMusic.music_schema[activeKey];
   if (!row) return;
   beatsElapsedInSegment = 0;
+  speakRowDescriptionOnStart();
   reflectCounterToInput();
   updatePrompterFocus();
 }
@@ -259,6 +277,7 @@ function clearMusicSelection(): void {
   currentMusic = null;
   activeKey = null;
   beatsElapsedInSegment = 0;
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   prompterPanel.hidden = true;
   prompterTitle.textContent = "";
   lyricsRows.innerHTML = "";
@@ -465,6 +484,7 @@ function spaceShouldControlMetronome(target: EventTarget | null): boolean {
 async function togglePlayPause(): Promise<void> {
   if (metronome.playing) {
     metronome.pause();
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     playPauseBtn.textContent = "Play";
     setBeatVisual(false);
     if (flashTimeout !== null) {
