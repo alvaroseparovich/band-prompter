@@ -39,7 +39,7 @@ jobs:
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
           # Repository secret: Settings → Secrets and variables → Actions
-          G_CLOUD_CLIENT_ID: ${{ vars.G_CLOUD_CLIENT_ID }}
+          G_SHEETS_API_KEY: ${{ secrets.G_SHEETS_API_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

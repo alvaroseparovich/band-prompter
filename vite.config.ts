@@ -9,8 +9,8 @@ export default defineConfig(({ mode }) => {
   /** From `.env`, `.env.local`, `.env.[mode]` — used when developing locally. */
   const envFromFiles = loadEnv(mode, root, "");
   /** GitHub Actions / CI sets these on `process.env` at build time (no `.env` file there). */
-  const gCloudClientId =
-    process.env.G_CLOUD_CLIENT_ID ?? envFromFiles.G_CLOUD_CLIENT_ID ?? "";
+  const gSheetsApiKey =
+    process.env.G_SHEETS_API_KEY ?? envFromFiles.G_SHEETS_API_KEY ?? "";
   const base =
     process.env.VITE_BASE_PATH?.trim() ||
     envFromFiles.VITE_BASE_PATH?.trim() ||
@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
   return {
     base,
     define: {
-      __G_CLOUD_CLIENT_ID__: JSON.stringify(gCloudClientId),
+      __G_SHEETS_API_KEY__: JSON.stringify(gSheetsApiKey),
     },
     build: {
       rollupOptions: {

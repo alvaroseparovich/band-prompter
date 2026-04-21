@@ -1,16 +1,4 @@
-type GoogleTokenResponse = {
-  access_token?: string;
-  expires_in?: number;
-  error?: string;
-  error_description?: string;
-};
-
-declare const __G_CLOUD_CLIENT_ID__: string;
-
-type GoogleTokenClient = {
-  callback: (resp: GoogleTokenResponse) => void;
-  requestAccessToken: (opts?: { prompt?: string }) => void;
-};
+declare const __G_SHEETS_API_KEY__: string;
 
 type GoogleSheetProperties = {
   sheetId: number;
@@ -31,22 +19,6 @@ type GoogleValueRange = {
   values?: string[][];
 };
 
-declare global {
-  interface Window {
-    google?: {
-      accounts?: {
-        oauth2?: {
-          initTokenClient: (opts: {
-            client_id: string;
-            scope: string;
-            callback: (resp: GoogleTokenResponse) => void;
-          }) => GoogleTokenClient;
-        };
-      };
-    };
-  }
-}
-
 export type SpreadsheetTab = {
   sheetId: number;
   title: string;
@@ -60,94 +32,32 @@ export type SpreadsheetTabValues = {
   values: string[][];
 };
 
-const SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
 const SHEETS_API_BASE = "https://sheets.googleapis.com/v4";
-const GIS_SCRIPT_URL = "https://accounts.google.com/gsi/client";
 const DEFAULT_RANGE = "A:G";
 
-let gisLoaderPromise: Promise<void> | null = null;
-let tokenClient: GoogleTokenClient | null = null;
-let accessToken: string | null = null;
-let tokenExpiresAt = 0;
-
-function getGoogleClientId(): string {
-  const id = __G_CLOUD_CLIENT_ID__;
-  if (!id || id.trim() === "") {
-    throw new Error("Missing G_CLOUD_CLIENT_ID in environment.");
+function getSheetsApiKey(): string {
+  const key = __G_SHEETS_API_KEY__;
+  if (!key || key.trim() === "") {
+    throw new Error("Missing G_SHEETS_API_KEY in environment.");
   }
-  return id.trim();
+  return key.trim();
 }
 
-function ensureGisScript(): Promise<void> {
-  if (window.google?.accounts?.oauth2) return Promise.resolve();
-  if (gisLoaderPromise) return gisLoaderPromise;
-
-  gisLoaderPromise = new Promise<void>((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${GIS_SCRIPT_URL}"]`,
-    );
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener(
-        "error",
-        () => reject(new Error("Failed to load Google Identity script.")),
-        { once: true },
-      );
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = GIS_SCRIPT_URL;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Failed to load Google Identity script."));
-    document.head.appendChild(script);
-  });
-
-  return gisLoaderPromise;
+function sheetsApiUrl(pathWithLeadingSlashAndQuery: string): string {
+  const key = encodeURIComponent(getSheetsApiKey());
+  const sep = pathWithLeadingSlashAndQuery.includes("?") ? "&" : "?";
+  return `${SHEETS_API_BASE}${pathWithLeadingSlashAndQuery}${sep}key=${key}`;
 }
 
-async function ensureTokenClient(): Promise<GoogleTokenClient> {
-  if (tokenClient) return tokenClient;
+async function fetchSheetsJson<T>(pathWithLeadingSlashAndQuery: string): Promise<T> {
+  const res = await fetch(sheetsApiUrl(pathWithLeadingSlashAndQuery));
 
-  await ensureGisScript();
-  const oauth2 = window.google?.accounts?.oauth2;
-  if (!oauth2) {
-    throw new Error("Google Identity SDK is unavailable.");
+  if (!res.ok) {
+    const details = await res.text();
+    throw new Error(`Google Sheets API ${res.status}: ${details || res.statusText}`);
   }
 
-  tokenClient = oauth2.initTokenClient({
-    client_id: getGoogleClientId(),
-    scope: SHEETS_SCOPE,
-    callback: () => {
-      // callback is set per-request in requestAccessToken
-    },
-  });
-  return tokenClient;
-}
-
-export async function requestSheetsAccessToken(): Promise<string> {
-  const now = Date.now();
-  if (accessToken && now < tokenExpiresAt - 5_000) {
-    return accessToken;
-  }
-
-  const client = await ensureTokenClient();
-  return new Promise<string>((resolve, reject) => {
-    client.callback = (resp: GoogleTokenResponse) => {
-      if (!resp.access_token) {
-        const msg = resp.error_description ?? resp.error ?? "Token request failed.";
-        reject(new Error(msg));
-        return;
-      }
-      accessToken = resp.access_token;
-      const expiresIn = typeof resp.expires_in === "number" ? resp.expires_in : 3600;
-      tokenExpiresAt = Date.now() + expiresIn * 1000;
-      resolve(accessToken);
-    };
-    client.requestAccessToken({ prompt: "consent" });
-  });
+  return (await res.json()) as T;
 }
 
 export function extractSpreadsheetId(input: string): string | null {
@@ -167,29 +77,12 @@ function escapeSheetTitleForRange(title: string): string {
   return `'${title.replace(/'/g, "''")}'`;
 }
 
-async function fetchWithAuth<T>(path: string, token: string): Promise<T> {
-  const res = await fetch(`${SHEETS_API_BASE}${path}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!res.ok) {
-    const details = await res.text();
-    throw new Error(`Google Sheets API ${res.status}: ${details || res.statusText}`);
-  }
-
-  return (await res.json()) as T;
-}
-
 export async function getSpreadsheetTabs(spreadsheetId: string): Promise<SpreadsheetTab[]> {
-  const token = await requestSheetsAccessToken();
   const params = new URLSearchParams({
     fields: "sheets(properties(sheetId,title))",
   });
-  const data = await fetchWithAuth<GoogleSpreadsheetResponse>(
+  const data = await fetchSheetsJson<GoogleSpreadsheetResponse>(
     `/spreadsheets/${encodeURIComponent(spreadsheetId)}?${params.toString()}`,
-    token,
   );
 
   return (data.sheets ?? [])
@@ -203,13 +96,11 @@ export async function getSpreadsheetTabValues(
   tab: SpreadsheetTab,
   range = DEFAULT_RANGE,
 ): Promise<SpreadsheetTabValues> {
-  const token = await requestSheetsAccessToken();
   const requestedRange = `${escapeSheetTitleForRange(tab.title)}!${range}`;
   const encodedRange = encodeURIComponent(requestedRange);
 
-  const data = await fetchWithAuth<GoogleValueRange>(
+  const data = await fetchSheetsJson<GoogleValueRange>(
     `/spreadsheets/${encodeURIComponent(spreadsheetId)}/values/${encodedRange}?majorDimension=ROWS`,
-    token,
   );
 
   return {

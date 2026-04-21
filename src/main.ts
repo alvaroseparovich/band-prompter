@@ -480,7 +480,7 @@ async function importFromGoogleSheets(): Promise<void> {
   const range = sheetRangeInput?.value.trim() || "A:G";
 
   sheetImportBtn.disabled = true;
-  setSheetImportStatus("Requesting Google authorization and loading tabs...");
+  setSheetImportStatus("Loading spreadsheet tabs...");
 
   try {
     const tabValues = await getAllSpreadsheetTabValues(spreadsheetId, range);
