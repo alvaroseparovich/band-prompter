@@ -21,6 +21,22 @@ body.ui-v2 h1 {
   margin: 0 0 1rem;
 }
 
+.v2-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.v2-sidebar-header h1 {
+  margin: 0;
+}
+
+#sidebarToggleBtn {
+  min-width: 2rem;
+  padding: 0.3rem 0.45rem;
+}
+
 .v2-root {
   flex: 1 1 auto;
   min-height: 0;
@@ -38,6 +54,19 @@ body.ui-v2 h1 {
   background: var(--surface);
   overflow-y: auto;
   min-height: 0;
+}
+
+body.ui-v2.sidebar-collapsed .v2-root {
+  grid-template-columns: 3.2rem 1fr;
+}
+
+body.ui-v2.sidebar-collapsed .v2-sidebar {
+  padding: 0.75rem 0.45rem;
+  overflow: hidden;
+}
+
+body.ui-v2.sidebar-collapsed .v2-sidebar > :not(.v2-sidebar-header) {
+  display: none;
 }
 
 .v2-beat-label {

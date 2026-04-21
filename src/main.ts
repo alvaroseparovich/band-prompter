@@ -14,6 +14,8 @@ const ttsEnabledInput = document.querySelector<HTMLInputElement>("#ttsEnabled");
 const playPauseBtn = document.querySelector<HTMLButtonElement>("#playPause")!;
 const beatIndicator = document.querySelector<HTMLDivElement>("#beatIndicator")!;
 const syncStatus = document.querySelector<HTMLParagraphElement>("#syncStatus")!;
+const sidebarToggleBtn = document.querySelector<HTMLButtonElement>("#sidebarToggleBtn");
+const sidebarEl = document.querySelector<HTMLElement>(".v2-sidebar");
 const emptyLibraryActions = document.querySelector<HTMLDivElement>("#emptyLibraryActions");
 const loadPresetBtn = document.querySelector<HTMLButtonElement>("#loadPresetBtn");
 const showLoremBtn = document.querySelector<HTMLButtonElement>("#showLoremBtn");
@@ -44,6 +46,7 @@ let downbeatCount = 0;
 let currentMusic: StoredMusic | null = null;
 let activeKey: number | null = null;
 let beatsElapsedInSegment = 0;
+let sidebarCollapsed = false;
 
 function setSheetImportStatus(msg: string): void {
   if (!sheetImportStatus) return;
@@ -54,8 +57,25 @@ function toSheetRecordId(spreadsheetId: string, sheetId: number): string {
   return `gsheet:${spreadsheetId}:${sheetId}`;
 }
 
+function isMusicRecordCompatible(m: StoredMusic): boolean {
+  return Object.keys(m.conf).length > 0 || Object.keys(m.music_schema).length > 0;
+}
+
 function setBeatVisual(on: boolean): void {
   beatIndicator.classList.toggle("beep-on", on);
+}
+
+function applySidebarState(): void {
+  const body = document.body;
+  body.classList.toggle("sidebar-collapsed", sidebarCollapsed);
+  if (!sidebarToggleBtn) return;
+  sidebarToggleBtn.textContent = sidebarCollapsed ? "▶" : "◀";
+  sidebarToggleBtn.setAttribute("aria-label", sidebarCollapsed ? "Maximize sidebar" : "Minimize sidebar");
+}
+
+function toggleSidebar(): void {
+  sidebarCollapsed = !sidebarCollapsed;
+  applySidebarState();
 }
 
 function sortedSchemaKeys(ms: MusicSchema): number[] {
@@ -406,8 +426,14 @@ async function refreshMusicList(): Promise<void> {
     const openBtn = document.createElement("button");
     openBtn.type = "button";
     openBtn.className = "music-open";
+    const compatible = isMusicRecordCompatible(m);
+    if (!compatible) openBtn.classList.add("music-open-invalid");
     openBtn.textContent = m.title;
     openBtn.addEventListener("click", () => {
+      if (!compatible) {
+        syncStatus.textContent = `"${m.title}" has no compatible data for this app (missing conf and music_schema).`;
+        return;
+      }
       void selectMusic(m.id);
     });
 
@@ -601,11 +627,33 @@ loadPresetBtn?.addEventListener("click", () => {
 
 showLoremBtn?.addEventListener("click", () => {
   window.alert(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    `Open a google sheets, click in: 
+    [file -> import -> (past the csv url)]. 
+    https://localhost/csv.csv
+    
+    use this example to create your own google sheets. You can create any sheets you want in the same file.
+    Doing this you can store it on your own google sheets.
+    To load it again, turn it public and copy the url and past here in the import session.
+    `,
   );
 });
 
+sidebarToggleBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  toggleSidebar();
+});
+
+sidebarEl?.addEventListener("click", () => {
+  if (!sidebarCollapsed) return;
+  toggleSidebar();
+});
+
 document.addEventListener("keydown", (e) => {
+  if (e.code === "Tab") {
+    e.preventDefault();
+    toggleSidebar();
+    return;
+  }
   if (e.code !== "Space") return;
   if (!spaceShouldControlMetronome(e.target)) return;
   e.preventDefault();
@@ -622,3 +670,4 @@ void (async () => {
 })();
 
 reflectCounterToInput();
+applySidebarState();

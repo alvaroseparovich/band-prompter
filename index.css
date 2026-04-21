@@ -113,6 +113,15 @@ button:active {
   text-align: left;
   padding: 0.5rem 0.65rem;
 }
+.music-list-row .music-open.music-open-invalid {
+  color: var(--danger);
+  border-color: #5c2a2a;
+  background: var(--danger-bg);
+}
+.music-list-row .music-open.music-open-invalid:hover {
+  background: #5c2020;
+  border-color: var(--danger);
+}
 .music-list-row .music-delete {
   flex: 0 0 auto;
   padding: 0.5rem 0.65rem;

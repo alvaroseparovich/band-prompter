@@ -9,7 +9,10 @@
   <body class="ui-v2">
     <div class="v2-root">
       <aside class="v2-sidebar" aria-label="Controls and library">
-        <h1>Metronome</h1>
+        <div class="v2-sidebar-header">
+          <h1>Metronome</h1>
+          <button id="sidebarToggleBtn" type="button" aria-label="Minimize sidebar" title="Minimize sidebar (press TAB)" >◀</button>
+        </div>
         <fieldset id="controlsPanel">
           <legend>Controls</legend>
           <label>
@@ -25,19 +28,19 @@
             <input id="counter" type="number" min="0" value="0" style="width: 3em;"/>
           </label>
           <label class="tts-toggle">
-            <input id="ttsEnabled" type="checkbox" checked />
+            <input id="ttsEnabled" type="checkbox" checked="false" />
             TTS
           </label>
-          <button id="playPause" type="button">Play</button>
+          <button id="playPause" type="button" title="Play/Pause (press SPACE)">Play</button>
         </fieldset>
         <p class="v2-beat-label">Beat</p>
         <div id="beatIndicator" aria-live="polite"></div>
         <fieldset>
-          <legend>Musics (IndexedDB)</legend>
+          <legend>Musics</legend>
           <p id="syncStatus" class="muted">Loading CSVs…</p>
           <div id="emptyLibraryActions" class="empty-library-actions" hidden>
             <button id="loadPresetBtn" type="button">Load preset data</button>
-            <button id="showLoremBtn" type="button">Show lorem ipsum</button>
+            <button id="showLoremBtn" type="button">How to use google sheets</button>
           </div>
           <ul id="musicList"></ul>
         </fieldset>
