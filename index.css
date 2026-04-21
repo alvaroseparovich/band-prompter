@@ -169,6 +169,7 @@ button:active {
 .lyric-row .lyric-progress-cell {
   background: transparent;
   transition: background-color 0.11s linear;
+  border: 1px solid black;
 }
 .lyric-row.focused .lyric-progress-cell.filled {
   background: color-mix(in srgb, var(--accent) 50%, transparent);
