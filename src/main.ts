@@ -83,6 +83,31 @@ function totalBeatsForRow(row: StoredMusic["music_schema"][number]): number {
   return Math.max(1, barsForRow(row) * beatsPerBar());
 }
 
+function normalizeCompassosValue(raw: string): string {
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) return "1";
+  return String(Math.floor(n));
+}
+
+async function saveCompassosForRow(key: number, rawValue: string): Promise<void> {
+  if (!currentMusic) return;
+  const row = currentMusic.music_schema[key];
+  if (!row) return;
+  const normalized = normalizeCompassosValue(rawValue);
+  if (row.Compassos === normalized) return;
+  row.Compassos = normalized;
+  currentMusic.updatedAt = Date.now();
+  await putMusic(currentMusic);
+  if (activeKey === key) {
+    const activeRow = currentMusic.music_schema[activeKey];
+    if (activeRow) {
+      beatsElapsedInSegment = Math.min(beatsElapsedInSegment, totalBeatsForRow(activeRow));
+      handleBeatTransport();
+    }
+  }
+  renderPrompter();
+}
+
 function speakRowDescriptionOnStart(): void {
   if (!("speechSynthesis" in window)) return;
   if (ttsEnabledInput && !ttsEnabledInput.checked) return;
@@ -221,9 +246,28 @@ function renderPrompter(): void {
     }
     div.appendChild(progress);
 
-    const compassos = document.createElement("div");
+    const compassos = document.createElement("input");
     compassos.className = "lyric-compassos";
-    compassos.textContent = row.Compassos.trim() || "1";
+    compassos.type = "number";
+    compassos.min = "1";
+    compassos.step = "1";
+    compassos.value = normalizeCompassosValue(row.Compassos);
+    compassos.addEventListener("click", (e) => e.stopPropagation());
+    compassos.addEventListener("mousedown", (e) => e.stopPropagation());
+    compassos.addEventListener("keydown", (e) => {
+      e.stopPropagation();
+      if (e.key === "Enter") {
+        const input = e.currentTarget as HTMLInputElement;
+        void saveCompassosForRow(k, input.value);
+        input.blur();
+      }
+    });
+    compassos.addEventListener("change", () => {
+      void saveCompassosForRow(k, compassos.value);
+    });
+    compassos.addEventListener("blur", () => {
+      void saveCompassosForRow(k, compassos.value);
+    });
     div.appendChild(compassos);
 
     const content = document.createElement("div");

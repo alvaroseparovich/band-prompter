@@ -193,8 +193,13 @@ button:active {
   color: var(--text-muted);
   opacity: 0.9;
   line-height: 1.45;
-  padding-top: 0.2rem;
+  padding: 0.1rem 0.2rem;
+  margin-top: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-raised);
   z-index: 1;
+  width: 1em;
 }
 .lyric-row .lyric-main {
   position: relative;
@@ -223,7 +228,8 @@ button:active {
   background: var(--focus-row);
   transition: font-size 0.35s ease-out;
 }
-.lyric-row.focused + .lyric-row {
+.lyric-row.focused + .lyric-row,
+.lyric-row:has(+ .lyric-row.focused) {
   font-size: 2rem;
   font-weight: 600;
 }
