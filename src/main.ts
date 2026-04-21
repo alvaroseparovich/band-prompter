@@ -71,7 +71,8 @@ function snapToNearestKey(value: number, keys: number[]): number {
 
 function barsForRow(row: StoredMusic["music_schema"][number]): number {
   const comp = parseInt(row.Compassos, 10);
-  return Number.isFinite(comp) && comp > 0 ? comp : 1;
+  if (!Number.isFinite(comp)) return 1;
+  return Math.max(0, Math.floor(comp));
 }
 
 function beatsPerBar(): number {
@@ -85,8 +86,16 @@ function totalBeatsForRow(row: StoredMusic["music_schema"][number]): number {
 
 function normalizeCompassosValue(raw: string): string {
   const n = parseInt(raw, 10);
-  if (!Number.isFinite(n) || n < 1) return "1";
+  if (!Number.isFinite(n) || n < 0) return "0";
   return String(Math.floor(n));
+}
+
+function nextKeyAfter(key: number): number | null {
+  if (!currentMusic) return null;
+  const keys = sortedSchemaKeys(currentMusic.music_schema);
+  const idx = keys.indexOf(key);
+  if (idx < 0 || idx >= keys.length - 1) return null;
+  return keys[idx + 1]!;
 }
 
 async function saveCompassosForRow(key: number, rawValue: string): Promise<void> {
@@ -171,6 +180,14 @@ function setTransportKey(rawKey: number): void {
   activeKey = snapToNearestKey(rawKey, keys);
   const row = currentMusic.music_schema[activeKey];
   if (!row) return;
+  const rowBars = barsForRow(row);
+  if (rowBars === 0) {
+    const next = nextKeyAfter(activeKey);
+    if (next !== null) {
+      setTransportKey(next);
+      return;
+    }
+  }
   beatsElapsedInSegment = 0;
   speakRowDescriptionOnStart();
   reflectCounterToInput();
@@ -249,7 +266,7 @@ function renderPrompter(): void {
     const compassos = document.createElement("input");
     compassos.className = "lyric-compassos";
     compassos.type = "number";
-    compassos.min = "1";
+    compassos.min = "0";
     compassos.step = "1";
     compassos.value = normalizeCompassosValue(row.Compassos);
     compassos.addEventListener("click", (e) => e.stopPropagation());
